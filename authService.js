@@ -93,6 +93,19 @@ function addPsychologistLocal({ name, email = "", clinic = "", ownerUsername = n
   return item;
 }
 
+function addPatientToPsychologistLocal(psychId, username, name) {
+  const list = getPsychologists();
+  const idx = list.findIndex((p) => p.id === psychId);
+  if (idx === -1) return false;
+  if (!Array.isArray(list[idx].patients)) list[idx].patients = [];
+  const existing = list[idx].patients.find((patient) => patient.username === username);
+  if (!existing) {
+    list[idx].patients.push({ username, name, progress: 0 });
+    savePsychologists(list);
+  }
+  return true;
+}
+
 function mergePsychologists(serverList, localList) {
   const serverIds = new Set(serverList.map((p) => p.id));
   return [...serverList, ...localList.filter((p) => !serverIds.has(p.id))];
@@ -116,6 +129,8 @@ export async function registerUser(name, username, password, psychId = null, rol
     writeUsers(users);
     if (Number(role) === 2) {
       addPsychologistLocal({ name, email, clinic, ownerUsername: key, id: data.psychId });
+    } else if (psychId) {
+      addPatientToPsychologistLocal(psychId, key, name.trim());
     }
     return data;
   } catch (err) {
