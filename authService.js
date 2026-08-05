@@ -82,6 +82,22 @@ async function loginUserLocal(username, password) {
   return { name: record.name, username: record.username, role: record.role || 1, psychId: record.psychId || null };
 }
 
+function addPsychologistLocal({ name, email = "", clinic = "", ownerUsername = null, id = null }) {
+  const list = getPsychologists();
+  const psychId = id || `p_${Date.now()}`;
+  const item = { id: psychId, name: name.trim(), email: email || "", clinic: clinic || "", patients: [], ownerUsername };
+  if (!list.some((p) => p.id === psychId)) {
+    list.push(item);
+    savePsychologists(list);
+  }
+  return item;
+}
+
+function mergePsychologists(serverList, localList) {
+  const serverIds = new Set(serverList.map((p) => p.id));
+  return [...serverList, ...localList.filter((p) => !serverIds.has(p.id))];
+}
+
 export async function registerUser(name, username, password, psychId = null, role = 1, email = "", clinic = "") {
   try {
     const res = await fetch("/api/auth/register", {
@@ -92,6 +108,14 @@ export async function registerUser(name, username, password, psychId = null, rol
     const data = await res.json().catch(() => null);
     if (!res.ok) {
       throw new Error(data?.message || "Error al registrarse en el servidor.");
+    }
+
+    const key = normUser(username);
+    const users = readUsers();
+    users[key] = { name: name.trim(), username: key, password, role: Number(role) === 2 ? 2 : 1, psychId: data.psychId || null };
+    writeUsers(users);
+    if (Number(role) === 2) {
+      addPsychologistLocal({ name, email, clinic, ownerUsername: key, id: data.psychId });
     }
     return data;
   } catch (err) {
@@ -111,6 +135,9 @@ export async function loginUser(username, password) {
     });
     const data = await res.json().catch(() => null);
     if (!res.ok) {
+      if (res.status === 401) {
+        return loginUserLocal(username, password);
+      }
       throw new Error(data?.message || "Error al iniciar sesión en el servidor.");
     }
     return data;
