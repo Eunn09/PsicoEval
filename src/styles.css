@@ -1,0 +1,56 @@
+:root{
+  --pv-navy: #0F2A4A;
+  --pv-blue: #1E4F8C;
+  --pv-blue-deep: #153B6B;
+  --pv-blue-tint: #EAF1FB;
+  --pv-orange: #F2871F;
+  --pv-orange-deep: #D96F0C;
+  --pv-orange-tint: #FFEBD6;
+  --pv-ink: #152436;
+  --pv-slate: #5B6B80;
+  --pv-paper: #F6F8FC;
+  --pv-white: #FFFFFF;
+  --pv-line: #DCE4EF;
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%;margin:0}
+body{font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial; background:var(--pv-paper); color:var(--pv-ink);}
+
+.pv-navbar{background:var(--pv-blue); color:var(--pv-white); padding:12px 20px}
+.pv-navbar .pv-container{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pv-brand{display:flex;align-items:center;gap:12px}
+.pv-logo-box{width:52px;height:52px;border-radius:12px;background:var(--pv-white);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pv-logo-img{width:100%;height:100%;object-fit:contain}
+.pv-title{font-weight:800;letter-spacing:0.6}
+.pv-title .pv-eval{color:var(--pv-orange)}
+.pv-sub{font-size:12px;color:var(--pv-orange-tint);margin-top:2px}
+.pv-nav{display:flex;align-items:center;gap:12px}
+.pv-btn{border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:700;border:none}
+.pv-btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--pv-white)}
+.pv-btn-primary{background:var(--pv-orange);color:var(--pv-white)}
+
+.pv-container-main{max-width:1100px;margin:0 auto;padding:24px}
+.pv-card{background:var(--pv-white);border-radius:12px;padding:18px;border:1px solid var(--pv-line)}
+
+input,select,textarea{padding:10px;border-radius:8px;border:1px solid var(--pv-line);font-size:14px}
+select{appearance:none}
+
+.pv-psych-grid{display:grid;grid-template-columns:1fr 360px;gap:18px;max-width:1000px;margin:20px auto}
+
+@media (max-width: 900px){
+  .pv-navbar .pv-container{flex-direction:column;align-items:flex-start;gap:10px}
+  .pv-nav{width:100%;justify-content:flex-end}
+  .pv-psych-grid{grid-template-columns:1fr;padding:0 12px}
+  .pv-logo-box{width:40px;height:40px}
+}
+
+@media (max-width: 480px){
+  .pv-navbar .pv-container{padding:8px}
+  .pv-title{font-size:16px}
+  .pv-sub{display:none}
+}
+
+/* Small utility */
+.pv-muted{color:var(--pv-slate)}
+.pv-pill{display:inline-block;padding:6px 10px;border-radius:999px;background:var(--pv-blue-deep);color:var(--pv-white);font-weight:700}
