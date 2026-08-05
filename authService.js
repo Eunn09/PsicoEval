@@ -27,6 +27,10 @@
 
 const STORAGE_KEY = "psicoeval_users";
 const PSYCH_KEY = "psicoeval_psicologos";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/\/+$/, "") || "";
+function apiUrl(path) {
+  return `${API_BASE_URL}${path}`;
+}
 
 function normUser(username) {
   return username.trim().toLowerCase().replace(/\s+/g, "");
@@ -127,7 +131,7 @@ function mergePsychologists(serverList, localList) {
 
 export async function registerUser(name, username, password, psychId = null, role = 1, email = "", clinic = "") {
   try {
-    const res = await fetch("/api/auth/register", {
+    const res = await fetch(apiUrl("/api/auth/register"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, username, password, psychId, role, email, clinic }),
@@ -157,7 +161,7 @@ export async function registerUser(name, username, password, psychId = null, rol
 
 export async function loginUser(username, password) {
   try {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch(apiUrl("/api/auth/login"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -189,7 +193,7 @@ export function getPsychologists() {
 
 export async function fetchPsychologists() {
   try {
-    const res = await fetch("/api/psychologists");
+    const res = await fetch(apiUrl("/api/psychologists"));
     if (!res.ok) throw new Error("API unavailable");
     const list = await res.json();
     if (!Array.isArray(list)) throw new Error("Invalid psychologist list");
@@ -203,7 +207,7 @@ export async function fetchPsychologists() {
 
 export async function createPsychologist({ name, email, clinic, ownerUsername = null }) {
   try {
-    const res = await fetch("/api/psychologists", {
+    const res = await fetch(apiUrl("/api/psychologists"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, clinic, ownerUsername }),

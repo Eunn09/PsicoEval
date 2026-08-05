@@ -85,6 +85,36 @@ vercel
 
 Responde las preguntas usando la carpeta actual y los valores de build/output mencionados arriba.
 
+## Despliegue del backend en Render
+
+1. Crea un servicio de tipo `Web Service` en https://render.com.
+2. Selecciona el repositorio que contiene este proyecto.
+3. Configura el servicio de Node:
+   - Build command: `npm install`
+   - Start command: `npm run start:server`
+   - Port: deja el puerto por defecto de Render o usa `4000`.
+4. En el servicio de Render, agrega la variable de entorno `NODE_ENV=production`.
+5. Después de desplegar, copia la URL pública del backend, por ejemplo `https://mi-backend.onrender.com`.
+6. En el frontend, configura la variable de entorno `VITE_API_BASE_URL` con esa URL.
+
+### Conectar el frontend con el backend de Render
+
+- Para localmente, crea un archivo `.env` en la raíz con:
+
+```env
+VITE_API_BASE_URL=http://localhost:4000
+```
+
+- Para el despliegue frontend, define `VITE_API_BASE_URL=https://tu-backend.onrender.com`.
+
+La app usará esa URL para llamar a los endpoints:
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/psychologists`
+- `POST /api/psychologists`
+
+> Nota: el backend actual guarda datos en archivos JSON dentro de `data/`. Render mantiene esos datos mientras el servicio esté activo, pero para un sistema real se recomienda usar una base de datos permanente.
+
 ## Probar roles
 
 ### Paciente
