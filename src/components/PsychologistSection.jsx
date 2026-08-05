@@ -90,13 +90,14 @@ export default function PsychologistSection({ currentUser }) {
               <div style={{ display: "grid", gap: 10, marginTop: 8 }}>
                 {(mine.patients || []).map((it) => {
                   const uname = typeof it === "string" ? it : it.username;
+                  const patientName = typeof it === "string" ? undefined : it.name;
                   const progress = typeof it === "string" ? 0 : it.progress || 0;
                   const history = getUserTestHistory(uname);
                   return (
                     <div key={uname} style={{ border: `1px solid ${C.line}`, borderRadius: 10, padding: 14, background: "#FBFCFF" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
                         <div>
-                          <div style={{ fontWeight: 700 }}>{(users[uname] && users[uname].name) || uname}</div>
+                          <div style={{ fontWeight: 700 }}>{patientName || (users[uname] && users[uname].name) || uname}</div>
                           <div style={{ fontSize: 12, color: C.slate }}>Usuario: {uname}</div>
                         </div>
                         <div style={{ textAlign: "right" }}>

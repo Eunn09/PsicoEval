@@ -107,8 +107,22 @@ function addPatientToPsychologistLocal(psychId, username, name) {
 }
 
 function mergePsychologists(serverList, localList) {
-  const serverIds = new Set(serverList.map((p) => p.id));
-  return [...serverList, ...localList.filter((p) => !serverIds.has(p.id))];
+  const localById = new Map(localList.map((p) => [p.id, p]));
+  return serverList.map((serverPsych) => {
+    const localPsych = localById.get(serverPsych.id);
+    if (!localPsych) return serverPsych;
+    const allPatients = Array.isArray(serverPsych.patients) ? [...serverPsych.patients] : [];
+    if (Array.isArray(localPsych.patients)) {
+      const patientIds = new Set(allPatients.map((patient) => typeof patient === "string" ? patient : patient.username));
+      localPsych.patients.forEach((patient) => {
+        const username = typeof patient === "string" ? patient : patient.username;
+        if (!patientIds.has(username)) {
+          allPatients.push(patient);
+        }
+      });
+    }
+    return { ...serverPsych, patients: allPatients };
+  }).concat(localList.filter((p) => !serverList.some((serverPsych) => serverPsych.id === p.id)));
 }
 
 export async function registerUser(name, username, password, psychId = null, role = 1, email = "", clinic = "") {
