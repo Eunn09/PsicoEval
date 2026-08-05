@@ -10,9 +10,15 @@ export default function PsychologistSection({ currentUser }) {
     loadList();
   }, []);
 
+  function mergeLists(serverList, localList) {
+    const serverIds = new Set(serverList.map((p) => p.id));
+    return [...serverList, ...localList.filter((p) => !serverIds.has(p.id))];
+  }
+
   async function loadList() {
-    const p = await fetchPsychologists();
-    setList(p || []);
+    const server = await fetchPsychologists();
+    const local = getPsychologists();
+    setList(mergeLists(server || [], local || []));
   }
 
   function handleChange(e) {
@@ -56,7 +62,15 @@ export default function PsychologistSection({ currentUser }) {
   });
   // If currentUser is a psychologist, show their dashboard only
   if (currentUser && Number(currentUser.role) === 2) {
-    const mine = list.find((p) => p.ownerUsername === currentUser.username || p.id === currentUser.psychId);
+    let mine = list.find((p) => p.ownerUsername === currentUser.username || p.id === currentUser.psychId);
+    let warning = null;
+    if (!mine) {
+      const localMine = getPsychologists().find((p) => p.ownerUsername === currentUser.username || p.id === currentUser.psychId);
+      if (localMine) {
+        mine = localMine;
+        warning = "Usando el perfil local de psicólogo mientras el servidor aún no sincroniza la lista.";
+      }
+    }
     if (!mine) {
       return (
         <div style={{ marginTop: 20 }}>

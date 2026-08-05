@@ -163,7 +163,10 @@ export async function fetchPsychologists() {
     const res = await fetch("/api/psychologists");
     if (!res.ok) throw new Error("API unavailable");
     const list = await res.json();
-    return Array.isArray(list) ? list : [];
+    if (!Array.isArray(list)) throw new Error("Invalid psychologist list");
+    const merged = mergePsychologists(list, getPsychologists());
+    savePsychologists(merged);
+    return merged;
   } catch {
     return getPsychologists();
   }
@@ -180,6 +183,7 @@ export async function createPsychologist({ name, email, clinic, ownerUsername = 
     if (!res.ok) {
       throw new Error(data?.message || "Error al crear psicólogo en el servidor.");
     }
+    addPsychologistLocal({ name, email, clinic, ownerUsername, id: data.id });
     return data;
   } catch (err) {
     if (err instanceof TypeError) {
