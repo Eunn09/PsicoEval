@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { C } from "../../theme";
-import { getPsychologists, addPsychologist, getUsers, savePsychologists, getUserTestHistory } from "../../authService";
+import { fetchPsychologists, createPsychologist, getPsychologists, getUsers, getUserTestHistory, savePsychologists } from "../../authService";
 export default function PsychologistSection({ currentUser }) {
   const [list, setList] = useState([]);
   const [filter, setFilter] = useState("");
@@ -10,8 +10,8 @@ export default function PsychologistSection({ currentUser }) {
     loadList();
   }, []);
 
-  function loadList() {
-    const p = getPsychologists();
+  async function loadList() {
+    const p = await fetchPsychologists();
     setList(p || []);
   }
 
@@ -19,12 +19,18 @@ export default function PsychologistSection({ currentUser }) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleAdd(e) {
+  async function handleAdd(e) {
     e.preventDefault();
     if (!form.name.trim()) return;
-    addPsychologist(form);
-    setForm({ name: "", email: "", clinic: "" });
-    loadList();
+    try {
+      await createPsychologist({ name: form.name, email: form.email, clinic: form.clinic });
+      setForm({ name: "", email: "", clinic: "" });
+      await loadList();
+    } catch {
+      addPsychologist(form);
+      setForm({ name: "", email: "", clinic: "" });
+      loadList();
+    }
   }
 
   function updatePatientProgress(psychId, patientUsername, progress) {

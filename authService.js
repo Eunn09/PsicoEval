@@ -45,14 +45,7 @@ function writeUsers(users) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
 }
 
-/**
- * Crea una cuenta nueva.
- * @param {string} name - Nombre completo
- * @param {string} username - Usuario (se normaliza a minúsculas, sin espacios)
- * @param {string} password
- * @returns {Promise<{name: string, username: string}>}
- */
-export async function registerUser(name, username, password, psychId = null, role = 1) {
+async function registerUserLocal(name, username, password, psychId = null, role = 1, email = "", clinic = "") {
   const key = normUser(username);
   if (!key) throw new Error("El usuario no puede estar vacío.");
   if (!name.trim()) throw new Error("Ingresa tu nombre completo.");
@@ -60,16 +53,73 @@ export async function registerUser(name, username, password, psychId = null, rol
 
   const users = readUsers();
   if (users[key]) throw new Error("Ese usuario ya está registrado.");
-  users[key] = { name: name.trim(), username: key, password, role: role };
+  const roleNum = Number(role) === 2 ? 2 : 1;
+  users[key] = { name: name.trim(), username: key, password, role: roleNum };
   if (psychId) {
     users[key].psychId = psychId;
   }
   writeUsers(users);
 
-  if (psychId && Number(role) === 1) {
+  if (roleNum === 2) {
+    const psych = addPsychologist({ name, email, clinic, ownerUsername: key });
+    users[key].psychId = psych.id;
+    writeUsers(users);
+  }
+
+  if (psychId && roleNum === 1) {
     assignPatientToPsychologist(psychId, key);
   }
+
   return { name: users[key].name, username: key, role: users[key].role, psychId: users[key].psychId || null };
+}
+
+async function loginUserLocal(username, password) {
+  const key = normUser(username);
+  const users = readUsers();
+  const record = users[key];
+  if (!record) throw new Error("No existe una cuenta con ese usuario.");
+  if (record.password !== password) throw new Error("Contraseña incorrecta.");
+  return { name: record.name, username: record.username, role: record.role || 1, psychId: record.psychId || null };
+}
+
+export async function registerUser(name, username, password, psychId = null, role = 1, email = "", clinic = "") {
+  try {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, username, password, psychId, role, email, clinic }),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new Error(data?.message || "Error al registrarse en el servidor.");
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof TypeError) {
+      return registerUserLocal(name, username, password, psychId, role, email, clinic);
+    }
+    throw err;
+  }
+}
+
+export async function loginUser(username, password) {
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new Error(data?.message || "Error al iniciar sesión en el servidor.");
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof TypeError) {
+      return loginUserLocal(username, password);
+    }
+    throw err;
+  }
 }
 
 export function getPsychologists() {
@@ -78,6 +128,37 @@ export function getPsychologists() {
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
+  }
+}
+
+export async function fetchPsychologists() {
+  try {
+    const res = await fetch("/api/psychologists");
+    if (!res.ok) throw new Error("API unavailable");
+    const list = await res.json();
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return getPsychologists();
+  }
+}
+
+export async function createPsychologist({ name, email, clinic, ownerUsername = null }) {
+  try {
+    const res = await fetch("/api/psychologists", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, clinic, ownerUsername }),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new Error(data?.message || "Error al crear psicólogo en el servidor.");
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof TypeError) {
+      return addPsychologist({ name, email, clinic, ownerUsername });
+    }
+    throw err;
   }
 }
 
@@ -124,15 +205,6 @@ export function setUserPsychId(username, psychId) {
  * @param {string} password
  * @returns {Promise<{name: string, username: string}>}
  */
-export async function loginUser(username, password) {
-  const key = normUser(username);
-  const users = readUsers();
-  const record = users[key];
-  if (!record) throw new Error("No existe una cuenta con ese usuario.");
-  if (record.password !== password) throw new Error("Contraseña incorrecta.");
-  return { name: record.name, username: record.username, role: record.role || 1, psychId: record.psychId || null };
-}
-
 /** Cierra la sesion actual (si estan guardando la sesion en el componente padre, solo limpien su estado). */
 export function logout() {
   // No-op por ahora: la sesión se maneja en memoria (estado de React) en App.jsx.

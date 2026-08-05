@@ -89,10 +89,11 @@ Responde las preguntas usando la carpeta actual y los valores de build/output me
 
 ### Paciente
 
-1. Regístrate como paciente usando un nombre, correo y contraseña.
-2. Inicia sesión con esos datos.
-3. En el dashboard verás un botón `Ir a tests`.
-4. Haz clic para ver y seleccionar tests.
+1. Regístrate como paciente usando un nombre, usuario y contraseña.
+2. Al registrarte, podrás seleccionar un psicólogo del listado.
+3. Inicia sesión con esos datos.
+4. En el dashboard verás un botón `Ir a tests`.
+5. Haz clic para ver y seleccionar tests.
 
 ### Psicólogo
 
@@ -101,7 +102,13 @@ Responde las preguntas usando la carpeta actual y los valores de build/output me
 3. Inicia sesión como psicólogo.
 4. Verás el panel de psicólogo con la lista de pacientes y sus resultados.
 
-> Nota: los datos se guardan en `localStorage`, así que no se pierden al recargar en el mismo navegador.
+### Selección de psicólogo con API
+
+- La app intenta cargar psicólogos desde `/api/psychologists`.
+- Si el endpoint no está disponible, usa la lista local guardada en `localStorage`.
+- Para demostración en Vercel, habilita el endpoint API y el registro de psicólogos se podrá sincronizar mejor.
+
+> Nota: los datos de usuario siguen guardándose en `localStorage` hasta que se implemente un backend completo.
 
 ## Notas
 

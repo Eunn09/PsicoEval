@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from "react";
 import { User, Lock, Loader2, Brain } from "lucide-react";
-import { registerUser, getPsychologists, addPsychologist, setUserPsychId, loginUser } from "./authService";
+import { registerUser, fetchPsychologists, createPsychologist, loginUser } from "./authService";
 import { C, FONT_DISPLAY, FONT_BODY } from "./theme";
 
 export default function Register({ onRegisterSuccess, onGoToLogin }) {
@@ -28,12 +28,15 @@ export default function Register({ onRegisterSuccess, onGoToLogin }) {
   const [clinic, setClinic] = useState("");
 
   useEffect(() => {
-    try {
-      const list = getPsychologists();
-      setPsychologists(list || []);
-    } catch (e) {
-      setPsychologists([]);
+    async function loadPsychologists() {
+      try {
+        const list = await fetchPsychologists();
+        setPsychologists(list || []);
+      } catch (e) {
+        setPsychologists([]);
+      }
     }
+    loadPsychologists();
   }, []);
 
   async function handleSubmit(e) {
@@ -60,12 +63,8 @@ export default function Register({ onRegisterSuccess, onGoToLogin }) {
     setLoading(true);
     try {
       if (Number(role) === 2) {
-        await registerUser(name, username, password, null, 2);
-        const key = username.trim().toLowerCase().replace(/\s+/g, "");
-        const psych = addPsychologist({ name, email, clinic, ownerUsername: key });
-        setUserPsychId(username, psych.id);
-        const logged = await loginUser(username, password);
-        onRegisterSuccess(logged);
+        const registered = await registerUser(name, username, password, null, 2, email, clinic);
+        onRegisterSuccess(registered);
       } else {
         const user = await registerUser(name, username, password, selectedPsych || null, 1);
         onRegisterSuccess(user);
@@ -263,9 +262,8 @@ export default function Register({ onRegisterSuccess, onGoToLogin }) {
         </p>
 
         <p style={{ marginTop: 14, fontSize: 11.5, color: C.slate, textAlign: "center", lineHeight: 1.5 }}>
-          Por ahora, la cuenta se guarda en este navegador (localStorage) mientras
-          conectan su API. Evita usar una contraseña real que usen en otros
-          servicios.
+          La app usa APIs de servidor para registrar usuarios y psicólogos cuando
+          el backend está disponible. Si no, funciona con almacenamiento local.
         </p>
       </div>
     </div>

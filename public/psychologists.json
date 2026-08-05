@@ -1,0 +1,30 @@
+[
+  {
+    "id": "p_ana_gomez",
+    "name": "Dra. Ana Gómez",
+    "email": "ana.gomez@psicoeval.com",
+    "clinic": "Centro PsicoVida",
+    "patients": []
+  },
+  {
+    "id": "p_miguel_ruiz",
+    "name": "Dr. Miguel Ruiz",
+    "email": "miguel.ruiz@psicoeval.com",
+    "clinic": "Consultorio MindCare",
+    "patients": []
+  },
+  {
+    "id": "p_luisa_martinez",
+    "name": "Dra. Luisa Martínez",
+    "email": "luisa.martinez@psicoeval.com",
+    "clinic": "Salud Emocional",
+    "patients": []
+  },
+  {
+    "id": "p_diego_ramirez",
+    "name": "Dr. Diego Ramírez",
+    "email": "diego.ramirez@psicoeval.com",
+    "clinic": "Espacio Mental",
+    "patients": []
+  }
+]
