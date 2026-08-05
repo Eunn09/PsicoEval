@@ -90,7 +90,7 @@ Responde las preguntas usando la carpeta actual y los valores de build/output me
 1. Crea un servicio de tipo `Web Service` en https://render.com.
 2. Selecciona el repositorio que contiene este proyecto.
 3. Configura el servicio de Node:
-   - Build command: `npm install`
+   - Build command: `npm run build:render`
    - Start command: `npm run start:server`
    - Port: deja el puerto por defecto de Render o usa `4000`.
 4. En el servicio de Render, agrega la variable de entorno `NODE_ENV=production`.
