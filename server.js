@@ -38,7 +38,3 @@ if (fs.existsSync(distPath)) {
 app.listen(PORT, () => {
   console.log(`PsicoEval backend running on port ${PORT}`);
 });
-
-app.listen(PORT, () => {
-  console.log(`PsicoEval backend running on port ${PORT}`);
-});
